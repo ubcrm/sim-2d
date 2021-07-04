@@ -1,0 +1,4 @@
+pygame==2.0.1
+numpy~=1.19.2
+networkx~=2.5
+opencv-python~=4.5.2
