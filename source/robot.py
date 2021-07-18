@@ -3,7 +3,7 @@ import functools
 import dataclasses
 import typing
 import math
-from shared import M, S, D, MS, MS2, DS, DS2, FIELD
+from shared import M, S, D, MS, MS2, DS, DS2, FIELD, limit_magnitude
 from geometry import Vector, LineSegment, Box, x_mirrors, y_mirrors
 from bullet import Bullet, BULLET
 
@@ -133,12 +133,9 @@ class Robot:
         y_accel = self._accel_required(self.speed.y, command.y_speed, ROBOT.drive_config)
         rotation_accel = self._accel_required(self.rotation_speed, command.rotation_speed, ROBOT.rotation_config)
         gimbal_yaw_accel = self._accel_required(self.gimbal_yaw_speed, command.gimbal_yaw_speed, ROBOT.gimbal_yaw_config)
-
-        # if self.team and self.is_one:
-        #     print(gimbal_yaw_accel)
-
         x_accel, y_accel, rotation_accel = self._limit_holonomic(
             x_accel, y_accel, rotation_accel, ROBOT.drive_config.top_accel, ROBOT.drive_config.top_accel, ROBOT.rotation_config.top_accel)
+
         self.speed.x = self._new_speed(self.speed.x, x_accel, ROBOT.drive_config)
         self.speed.y = self._new_speed(self.speed.y, y_accel, ROBOT.drive_config)
         self.rotation_speed = self._new_speed(self.rotation_speed, rotation_accel, ROBOT.rotation_config)
@@ -203,15 +200,11 @@ class Robot:
     def _accel_required(current_speed: float, desired_speed: float, config: MotionConfig):
         if math.isclose(current_speed, 0, rel_tol=ROBOT.zero_tolerance) and desired_speed == 0.:
             return 0.
-        new_speed = Robot._limit_magnitude(desired_speed, config.top_speed)
+        new_speed = limit_magnitude(desired_speed, config.top_speed)
         accel = new_speed - current_speed + math.copysign(config.friction_decel, current_speed) + current_speed * config.friction_coeff
-        return Robot._limit_magnitude(accel, config.top_accel)
+        return limit_magnitude(accel, config.top_accel)
 
     @staticmethod
     def _limit_holonomic(x: float, y: float, z: float, x_max: float, y_max: float, z_max: float):
         magnitude = max(abs(x / x_max) + abs(y / y_max) + abs(z / z_max), 1)
         return x / magnitude, y / magnitude, z / magnitude
-
-    @staticmethod
-    def _limit_magnitude(value, top_value):
-        return math.copysign(min(abs(value), top_value), value)

@@ -29,3 +29,7 @@ class FIELD:
         *mirrors(Box(Vector(0.2 * M, 1 * M), Vector(-2.44 * M, -1.74 * M))),
         *mirrors(Box(Vector(1 * M, 0.2 * M), Vector(0, 1.205 * M)))
     ]
+
+
+def limit_magnitude(value, top_value):
+    return math.copysign(min(abs(value), top_value), value)
