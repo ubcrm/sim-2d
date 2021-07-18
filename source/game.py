@@ -45,7 +45,7 @@ class Game:
         return self.teams[True].robots[True], self.teams[True].robots[False], self.teams[False].robots[True], self.teams[False].robots[False]
 
     def step(self, blue_commands: tuple[RobotCommand, RobotCommand], red_commands: tuple[RobotCommand, RobotCommand]):
-        if not self.time_remaining % ZONE.reset_time:
+        if not self.time_remaining % (60 * S):
             self._reset_zones()
         for robot, command in zip(self.robots, (*blue_commands, *red_commands)):
             robot.control(command)

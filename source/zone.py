@@ -25,7 +25,6 @@ class ZONE:
         *mirrors(Box(dims, Vector(-2.14 * M, -0.59 * M))),
         *mirrors(Box(dims, Vector(0, 1.795 * M)))
     )
-    reset_time = 60 * S
 
 
 class Zone:
