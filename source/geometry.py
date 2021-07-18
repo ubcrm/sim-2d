@@ -1,8 +1,6 @@
 import math
 import typing
 
-G = typing.TypeVar('G')
-
 
 class Vector:
     def __init__(self, x: float, y: float):
@@ -87,13 +85,16 @@ class Box:
         return Box(self.dims, self.center.mirror(x, y))
 
 
-def x_mirrors(g: G) -> tuple[G, G]:
+Geometry = typing.Union[Vector, LineSegment, Box]
+
+
+def x_mirrors(g: Geometry) -> tuple[Geometry, Geometry]:
     return g, g.mirror(y=False)
 
 
-def y_mirrors(g: G) -> tuple[G, G]:
+def y_mirrors(g: Geometry) -> tuple[Geometry, Geometry]:
     return g, g.mirror(x=False)
 
 
-def mirrors(g: G) -> tuple[G, G]:
+def mirrors(g: Geometry) -> tuple[Geometry, Geometry]:
     return g, g.mirror()

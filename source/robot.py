@@ -49,8 +49,9 @@ class ROBOT:
     _factor = 1 / (math.sqrt(2) * _drive_radius)
     drive_config = MotionConfig(3 * MS, 6 * MS2, 0.1 * MS2)
     rotation_config = MotionConfig(_factor * drive_config.top_speed, _factor * drive_config.top_accel, _factor * drive_config.friction_decel)
-    gimbal_yaw_config = MotionConfig(300 * DS, 600 * DS2, 10 * DS2)
+    gimbal_yaw_config = MotionConfig(300 * DS, 1000 * DS2, 10 * DS2)
 
+    zero_tolerance = 0.001
     rebound_coeff = 0.4
     shot_cooldown = 0.1 * S
 
@@ -133,8 +134,8 @@ class Robot:
         rotation_accel = self._accel_required(self.rotation_speed, command.rotation_speed, ROBOT.rotation_config)
         gimbal_yaw_accel = self._accel_required(self.gimbal_yaw_speed, command.gimbal_yaw_speed, ROBOT.gimbal_yaw_config)
 
-        if self.is_one and self.team.is_blue:
-            print(gimbal_yaw_accel)
+        # if self.team and self.is_one:
+        #     print(gimbal_yaw_accel)
 
         x_accel, y_accel, rotation_accel = self._limit_holonomic(
             x_accel, y_accel, rotation_accel, ROBOT.drive_config.top_accel, ROBOT.drive_config.top_accel, ROBOT.rotation_config.top_accel)
@@ -170,9 +171,9 @@ class Robot:
         self._armor_lines = [a.transform(self.center, self.rotation) for a in ROBOT.armor_lines]
 
     def settle_heat(self):  # rules 4.1.2
+        self.heat = max(self.heat - (12 if self.hp >= 400 else 24), 0)
         if 240 < self.heat < 360:
             self.hp -= (self.heat - 240) * 4
-            self.heat = max(self.heat - (12 if self.hp >= 400 else 24), 0)
         elif 360 <= self.heat:
             self.hp -= (self.heat - 360) * 40
             self.heat = 360
@@ -200,11 +201,17 @@ class Robot:
 
     @staticmethod
     def _accel_required(current_speed: float, desired_speed: float, config: MotionConfig):
-        new_speed = math.copysign(min(abs(desired_speed), config.top_speed), desired_speed)
+        if math.isclose(current_speed, 0, rel_tol=ROBOT.zero_tolerance) and desired_speed == 0.:
+            return 0.
+        new_speed = Robot._limit_magnitude(desired_speed, config.top_speed)
         accel = new_speed - current_speed + math.copysign(config.friction_decel, current_speed) + current_speed * config.friction_coeff
-        return min(accel, config.top_accel)
+        return Robot._limit_magnitude(accel, config.top_accel)
 
     @staticmethod
     def _limit_holonomic(x: float, y: float, z: float, x_max: float, y_max: float, z_max: float):
         magnitude = max(abs(x / x_max) + abs(y / y_max) + abs(z / z_max), 1)
         return x / magnitude, y / magnitude, z / magnitude
+
+    @staticmethod
+    def _limit_magnitude(value, top_value):
+        return math.copysign(min(abs(value), top_value), value)

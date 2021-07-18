@@ -87,8 +87,8 @@ class Game:
                 self.winner = Winner.tied
 
     def _reset_zones(self):
-        positions = random.sample([0, 2, 4], k=3)  # randomly order F1, F2, F3
-        sides = random.choices([0, 1], k=3)  # randomly choose left/right side of field
+        positions = random.sample([0, 2, 4], k=3)  # randomly order F1/F2/F3 (0/2/4)
+        sides = random.choices([0, 1], k=3)  # randomly choose left/right (0/1) side of field
         indices = []
 
         for position, side in zip(positions, sides):
