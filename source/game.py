@@ -2,23 +2,15 @@ from __future__ import annotations
 import typing
 import random
 import time
-import enum
 import functools
-from shared import S, FIELD
-from zone import ZoneType, ZONE, Zone
+from shared import ZoneType, Winner, UNITS, FIELD
+from zone import Zone
 from team import Team
 
 if typing.TYPE_CHECKING:
     from bullet import Bullet
     from geometry import LineSegment
     from robot import RobotCommand, Robot
-
-
-class Winner(enum.Enum):
-    blue = 0
-    red = 1
-    tied = 2
-    tbd = 3  # to be determined - game in progress
 
 
 class Game:
@@ -36,7 +28,7 @@ class Game:
             False: Team(False)
         }
         self.bullets: list[Bullet] = []
-        self.time_remaining = 180 * S
+        self.time_remaining = 180 * UNITS.s
         self.winner = Winner.tbd
         random.seed(time.time())
         
@@ -45,7 +37,7 @@ class Game:
         return self.teams[True].robots[True], self.teams[True].robots[False], self.teams[False].robots[True], self.teams[False].robots[False]
 
     def step(self, blue_commands: tuple[RobotCommand, RobotCommand], red_commands: tuple[RobotCommand, RobotCommand]):
-        if not self.time_remaining % (60 * S):
+        if not self.time_remaining % (60 * UNITS.s):
             self._reset_zones()
         for robot, command in zip(self.robots, (*blue_commands, *red_commands)):
             robot.control(command)
