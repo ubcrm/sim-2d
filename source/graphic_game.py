@@ -12,7 +12,7 @@ if typing.TYPE_CHECKING:
 class GRAPHIC_GAME:
     window_title = 'UBC RoboMaster AI Challenge Simulator'
     robot_label_offset = (-10, -35)
-    state_coords = [[(72 + 41 * i, 516 + 17 * j) for i in range(18)] for j in range(4)]
+    state_coords = [[(72 + 41 * i, 567 - 17 * j) for i in range(18)] for j in range(4)]
     info_coords = [(195 + 4 * 41 * i, 482) for i in range(4)]
 
     offset = (10, 10)
