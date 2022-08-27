@@ -3,7 +3,7 @@ import functools
 import dataclasses
 import typing
 import math
-from shared import M, S, D, MS, MS2, DS, DS2, FIELD, limit_magnitude
+from shared import UNITS, FIELD, limit_magnitude
 from geometry import Vector, LineSegment, Box, x_mirrors, y_mirrors
 from bullet import Bullet, BULLET
 
@@ -34,9 +34,9 @@ class MotionConfig:
 
 
 class ROBOT:
-    outline = Box(Vector(0.6 * M, 0.5 * M))
+    outline = Box(Vector(0.6 * UNITS.m, 0.5 * UNITS.m))
 
-    _armor_length = 0.14 * M
+    _armor_length = 0.14 * UNITS.m
     armor_lines = [
         LineSegment(*y_mirrors(Vector(outline.dims.x / 2, _armor_length / 2))),
         LineSegment(*x_mirrors(Vector(_armor_length / 2, outline.dims.y / 2))),
@@ -45,15 +45,15 @@ class ROBOT:
     ]
     armor_damages = [20, 40, 40, 60]
 
-    _drive_radius = 0.3 * M
+    _drive_radius = 0.3 * UNITS.m
     _factor = 1 / (math.sqrt(2) * _drive_radius)
-    drive_config = MotionConfig(3 * MS, 6 * MS2, 0.1 * MS2)
+    drive_config = MotionConfig(3 * UNITS.ms, 6 * UNITS.ms2, 0.1 * UNITS.ms2)
     rotation_config = MotionConfig(_factor * drive_config.top_speed, _factor * drive_config.top_accel, _factor * drive_config.friction_decel)
-    gimbal_yaw_config = MotionConfig(300 * DS, 1000 * DS2, 10 * DS2)
+    gimbal_yaw_config = MotionConfig(300 * UNITS.ds, 1000 * UNITS.ds2, 10 * UNITS.ds2)
 
     zero_tolerance = 0.001
     rebound_coeff = 0.4
-    shot_cooldown = 0.1 * S
+    shot_cooldown = 0.1 * UNITS.s
 
 
 class Robot:
@@ -146,7 +146,7 @@ class Robot:
         self.debuff_timeout -= min(1, self.debuff_timeout)
         self.shot_cooldown -= min(1, self.shot_cooldown)
 
-        if not time_remaining % (0.1 * S):
+        if not time_remaining % (0.1 * UNITS.s):
             self.settle_heat()
         if not self.debuff_timeout:
             self.can_move = True
@@ -157,14 +157,14 @@ class Robot:
         if any([self.speed.x, self.speed.y, self.rotation_speed]):
             old_center, old_rotation, old_corners = self.center.copy(), self.rotation, self._corners.copy()
             self.center += self.speed.transform(angle=old_rotation)
-            self.rotation = (self.rotation + self.rotation_speed) % (360 * D)
+            self.rotation = (self.rotation + self.rotation_speed) % (360 * UNITS.d)
             self._corners = [p.transform(self.center, self.rotation) for p in ROBOT.outline.corners]
 
             if self.hits(robots):
                 self.rotation_speed *= -ROBOT.rebound_coeff
                 self.speed *= -ROBOT.rebound_coeff
                 self.center, self.rotation, self._corners = old_center, old_rotation, old_corners
-        self.gimbal_yaw = (self.gimbal_yaw + self.gimbal_yaw_speed) % (360 * D)
+        self.gimbal_yaw = (self.gimbal_yaw + self.gimbal_yaw_speed) % (360 * UNITS.d)
         self._armor_lines = [a.transform(self.center, self.rotation) for a in ROBOT.armor_lines]
 
     def settle_heat(self):  # rules 4.1.2
@@ -184,11 +184,11 @@ class Robot:
 
     def apply_move_debuff(self):
         self.can_move = False
-        self.debuff_timeout = 10 * S
+        self.debuff_timeout = 10 * UNITS.s
 
     def apply_shoot_debuff(self):
         self.can_shoot = False
-        self.debuff_timeout = 10 * S
+        self.debuff_timeout = 10 * UNITS.s
 
     @staticmethod
     def _new_speed(current_speed: float, accel: float, config: MotionConfig):

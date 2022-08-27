@@ -2,8 +2,6 @@ import pathlib
 import networkx
 import json
 
-DATA_FILE_PATH = pathlib.Path('assets/navigation.json')
-
 
 class Navigator:
     def __init__(self, file_name: str = DATA_FILE_PATH):

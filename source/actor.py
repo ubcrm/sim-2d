@@ -246,7 +246,7 @@ class Actor:
         :return:
         """
         theta = np.rad2deg(np.arctan(45 / 60))
-        delta_x, delta_y = self.state.robots[scanned_enemy].center - self.robot.center
+        delta_x, delta_y = self.state.robots[scanned_enemy]._center - self.robot._center
         relative_angle = np.angle(delta_x + delta_y * 1j, deg=True) - self.state.robots[scanned_enemy].rotation
         # Normalize angle
         if relative_angle >= 180: relative_angle -= 360
@@ -260,7 +260,7 @@ class Actor:
             armor = self.get_relative_robot_vertices(self.state.robots[scanned_enemy], 1)
         else:
             armor = self.get_relative_robot_vertices(self.state.robots[scanned_enemy], 0)
-        delta_x, delta_y = armor - self.robot.center
+        delta_x, delta_y = armor - self.robot._center
         adjustment_angle = np.angle(delta_x + delta_y * 1j, deg=True) - self.robot.yaw - self.robot.rotation
         if adjustment_angle >= 180: adjustment_angle -= 360
         if adjustment_angle <= -180: adjustment_angle += 360
@@ -290,7 +290,7 @@ class Actor:
         # if scanned_enemies is not None:
         #     self.aim_then_shoot(scanned_enemies)
         # else:
-        pos = self.nearest_waypoint(self.robot.center)
+        pos = self.nearest_waypoint(self.robot._center)
         dest = self.destination if self.destination is not None else waypoint
         # TODO: Update this function call when the new version of navigate is implemented
         x, y, rotate = self.navigate(self.state, pos, dest, [3, 10])
@@ -339,7 +339,7 @@ class Actor:
         TODO Update with new kernel implementation
         """
         robot_id = self.robot.id_
-        robot_coordinates = self.robot.center
+        robot_coordinates = self.robot._center
         for offset_index in range(len(self.state.robots - 1)):
             if robot_id % 2 == 0:
                 # If the robot is in the blue team
@@ -351,7 +351,7 @@ class Actor:
                 if self.state.robots[robot_id - offset_index - 1].id_ % 2 == 1:
                     # Only scan for blue team robots and not red team
                     continue
-            other_robot_coordinates = self.state.robots[robot_id - offset_index - 1].center
+            other_robot_coordinates = self.state.robots[robot_id - offset_index - 1]._center
             delta_x, delta_y = other_robot_coordinates - robot_coordinates
             angle = np.angle(delta_x + delta_y * 1j, deg=True)
             if angle >= 180: angle -= 360
@@ -378,7 +378,7 @@ class Actor:
         TODO Update with new kernel implementation
         """
         robot_id = self.robot.id_
-        robot_coordinates = self.robot.center
+        robot_coordinates = self.robot._center
         for offset_index in range(len(self.state.robots - 1)):
             if robot_id % 2 == 0:
                 # If the robot is in the blue team
@@ -390,7 +390,7 @@ class Actor:
                 if self.state.robots[robot_id - offset_index - 1].id_ % 2 == 1:
                     # Only scan for blue team robots and not red team
                     continue
-            other_robot_coordinates = self.state.robots[robot_id - offset_index - 1].center
+            other_robot_coordinates = self.state.robots[robot_id - offset_index - 1]._center
             delta_x, delta_y = other_robot_coordinates - robot_coordinates
             angle = np.angle(delta_x + delta_y * 1j, deg=True)
             if angle >= 180: angle -= 360
@@ -432,7 +432,7 @@ class Actor:
                                   [np.sin(-np.deg2rad(robot.rotation + 90)),
                                    np.cos(-np.deg2rad(robot.rotation + 90))]])
         xs = np.array([[-22.5, -30], [22.5, 30], [-22.5, 30], [22.5, -30]])
-        return [np.matmul(xs[i], rotate_matrix) + robot.center for i in range(xs.shape[0])]
+        return [np.matmul(xs[i], rotate_matrix) + robot._center for i in range(xs.shape[0])]
 
     def get_relative_robot_vertices(self, robot, direction):
         """
@@ -444,7 +444,7 @@ class Actor:
                                   [np.sin(-np.deg2rad(robot.rotation + 90)),
                                    np.cos(-np.deg2rad(robot.rotation + 90))]])
         xs = np.array([[0, -30], [18.5, 0], [0, 30], [-18.5, 0]])
-        return np.matmul(xs[direction], rotate_matrix) + robot.center
+        return np.matmul(xs[direction], rotate_matrix) + robot._center
 
     def segment(self, p1, p2, p3, p4):
         if (max(p1[0], p2[0]) >= min(p3[0], p4[0])
@@ -487,7 +487,7 @@ class Actor:
         connecting them
         """
         for robot in self.state.robots:
-            if (robot.center == robot_center1).all() or (robot.center == robot_center2).all():
+            if (robot._center == robot_center1).all() or (robot._center == robot_center2).all():
                 # Performing comparison with the current robots, so pass onto next loop
                 continue
             vertex1, vertex2, vertex3, vertex4 = self.get_robot_outline(robot)
