@@ -1,13 +1,13 @@
 import pygame
 from graphic_game import GraphicGame
-from shared import IMAGES_DIR
+from shared import ASSETS
 from robot import RobotCommand, ROBOT
 
 
 class INTERACTIVE_GAME:
-    DELAY = 18
-    SHORT_DELAY = 0
-    GUIDE_RENDER = pygame.image.load(IMAGES_DIR / 'guide.png'), (134, 114)
+    delay = 18
+    short_delay = 0
+    guide_coords = (134, 114)
 
 
 class InteractiveGame:
@@ -23,9 +23,9 @@ class InteractiveGame:
             self._game.step(*commands)
             self._game._blit()
             if self._view_guide:
-                self._game._screen.blit(*INTERACTIVE_GAME.GUIDE_RENDER)  # this is not good
+                self._game._screen.blit(ASSETS.guide, INTERACTIVE_GAME.guide_coords)  # this is not good
             pygame.display.flip()
-            pygame.time.wait(INTERACTIVE_GAME.SHORT_DELAY if self._speed_up else INTERACTIVE_GAME.DELAY)
+            pygame.time.wait(INTERACTIVE_GAME.short_delay if self._speed_up else INTERACTIVE_GAME.delay)
 
     def _receive_commands(self):
         pressed = pygame.key.get_pressed()

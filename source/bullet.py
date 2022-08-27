@@ -2,16 +2,16 @@ from __future__ import annotations
 import random
 import typing
 from geometry import Vector, LineSegment
-from shared import M, S
+from shared import UNITS
 
 if typing.TYPE_CHECKING:
     from robot import Robot
 
 
 class BULLET:
-    speed = 20 * M / S
-    sigma_x_speed = 2 * M / S
-    sigma_y_speed = 1 * M / S
+    speed = 20 * UNITS.ms
+    sigma_x_speed = 2 * UNITS.ms
+    sigma_y_speed = 1 * UNITS.ms
 
 
 class Bullet:

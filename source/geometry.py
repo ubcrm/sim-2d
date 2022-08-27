@@ -41,6 +41,9 @@ class Vector:
     def __mul__(self, f: float):
         return Vector(self.x * f, self.y * f)
 
+    def __repr__(self):
+        return (self.x, self.y).__repr__()
+
 
 class LineSegment:
     def __init__(self, a: Vector, b: Vector):
